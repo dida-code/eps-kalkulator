@@ -1,0 +1,20 @@
+{
+  "id": "eps-kalkulator",
+  "name": "EPS kalkulator struje",
+  "short_name": "EPS kalkulator",
+  "description": "Procena računa za električnu energiju na osnovu VT i NT potrošnje.",
+  "lang": "sr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f7f4",
+  "theme_color": "#123b2d",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
