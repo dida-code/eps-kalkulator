@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123b2d">
+<title>EPS kalkulator struje</title>
+<style>
+:root{color-scheme:light;--green:#176b48;--ink:#17231d;--muted:#68766e;--line:#e1e8e3;--bg:#f3f7f4;--card:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
+header{margin-bottom:20px}h1{font-size:clamp(25px,5vw,34px);margin:0 0 5px;letter-spacing:-.7px}header p{margin:0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:19px;margin:14px 0;box-shadow:0 5px 18px #183c2810}
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:14px;color:var(--muted);margin-bottom:7px}.field input{width:100%;padding:14px 12px;border:1px solid #cbd8cf;border-radius:11px;font-size:24px;font-weight:700;color:var(--ink);outline:none}.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px #176b4818}.unit{font-size:12px;color:var(--muted);margin-top:5px}
+.total{background:#123b2d;color:#fff;border-radius:17px;padding:21px}.total small{color:#c7ddd0}.amount{font-size:clamp(36px,8vw,49px);font-weight:800;letter-spacing:-1.5px;margin:3px 0}.total .sub{font-size:13px;color:#c7ddd0}
+h2{font-size:18px;margin:0 0 14px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.stat{background:#f4f8f5;border-radius:12px;padding:12px 5px}.stat b{display:block;font-size:21px}.stat span{font-size:12px;color:var(--muted)}
+.bar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:#e9eee9;margin:17px 0 8px}.bar span{display:block;height:100%}.legend{display:flex;gap:15px;flex-wrap:wrap;font-size:12px;color:var(--muted)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.row:last-child{border:0}.row span{color:var(--muted)}.row strong{text-align:right;font-variant-numeric:tabular-nums}.grand{font-size:16px;font-weight:800;padding-top:13px}
+button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 13px;color:var(--ink);font-weight:600;cursor:pointer}button:active{transform:translateY(1px)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.discount{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.discount button{padding:12px 5px}.discount button.active{background:var(--green);color:white;border-color:var(--green)}.discount small{display:block;font-weight:400;font-size:11px;opacity:.8}
+.note{font-size:12px;color:var(--muted);line-height:1.5}.pill{display:inline-block;border-radius:20px;padding:3px 8px;background:#eaf3ed;color:var(--green);font-size:12px;font-weight:700}
+@media(max-width:420px){main{padding:18px 12px 35px}.card{padding:15px}.field input{font-size:21px}.stats{gap:5px}.stat b{font-size:18px}}
+</style>
+</head>
+<body>
+<main>
+<header><span class="pill">EPS • kalkulator</span><h1>Obračun električne energije</h1><p>Unesi samo potrošnju u višoj i nižoj tarifi.</p></header>
+<section class="card">
+ <div class="inputs">
+  <div class="field"><label for="vt">Viša tarifa (VT)</label><input id="vt" type="number" min="0" step="1" inputmode="decimal" value="356"><div class="unit">kWh</div></div>
+  <div class="field"><label for="nt">Niža tarifa (NT)</label><input id="nt" type="number" min="0" step="1" inputmode="decimal" value="83"><div class="unit">kWh</div></div>
+ </div>
+ <div class="actions"><button id="clear">Obriši unos</button></div>
+</section>
+<section class="total">
+ <small>Procena ukupnog računa</small><div class="amount" id="total">—</div><div class="sub">dinara • sa RTS taksom i izabranim popustom</div>
+</section>
+<section class="card">
+ <h2>Potrošnja po zonama</h2>
+ <div class="stats">
+  <div class="stat"><span>Zelena zona</span><b id="green">—</b><span>kWh</span></div>
+  <div class="stat"><span>Plava zona</span><b id="blue">—</b><span>kWh</span></div>
+  <div class="stat"><span>Crvena zona</span><b id="red">—</b><span>kWh</span></div>
+ </div>
+ <div class="bar"><span id="gbar" style="background:#269765"></span><span id="bbar" style="background:#438bd0"></span><span id="rbar" style="background:#d95757"></span></div>
+ <div class="legend"><span><i class="dot" style="background:#269765"></i>Zelena</span><span><i class="dot" style="background:#438bd0"></i>Plava</span><span><i class="dot" style="background:#d95757"></i>Crvena</span><span style="margin-left:auto" id="usage">Ukupno: — kWh</span></div>
+</section>
+<section class="card">
+ <h2>Detaljan obračun</h2>
+ <div class="row"><span>Obračunska snaga</span><strong id="power">—</strong></div>
+ <div class="row"><span>Trošak garantovanog snabdevača</span><strong id="supplier">—</strong></div>
+ <div class="row"><span>Utrošena električna energija</span><strong id="energy">—</strong></div>
+ <div class="row"><span>Ukupno pre popusta (1+2+3)</span><strong id="before">—</strong></div>
+ <div class="row"><span>Popust</span><strong id="discountAmount">—</strong></div>
+ <div class="row"><span>Naknada za povlašćene proizvođače</span><strong id="renew">—</strong></div>
+ <div class="row"><span>Naknada za energetsku efikasnost</span><strong id="eff">—</strong></div>
+ <div class="row"><span>Akciza (7,5%)</span><strong id="excise">—</strong></div>
+ <div class="row"><span>PDV (20%)</span><strong id="vat">—</strong></div>
+ <div class="row"><span>RTS taksa</span><strong id="rts">349,00</strong></div>
+ <div class="row grand"><span>UKUPNO ZA UPLATU</span><strong id="total2">—</strong></div>
+</section>
+<section class="card">
+ <h2>Popust za plaćanje</h2>
+ <div class="discount">
+  <button data-rate="5">5%<small>blagovremeno</small></button>
+  <button data-rate="6" class="active">6%<small>blagovremeno</small></button>
+  <button data-rate="7">7%<small>e-račun</small></button>
+ </div>
+ <p class="note" style="margin-bottom:0">Izaberi popust koji ti pripada prema uslovima EPS-a. Popust se obračunava na stavke 1+2+3, kao na priloženom računu.</p>
+</section>
+<p class="note">Obračun koristi cene i naknade sa dostavljenog računa za septembar 2026: zelena VT 9,6136 / NT 2,4034; plava VT 14,4203 / NT 3,6051; crvena VT 28,8406 / NT 7,2102 din/kWh. Za zone je korišćena raspodela ukupne potrošnje proporcionalno VT/NT, sa pragovima 350 i 1.200 kWh. Fiksne stavke i RTS taksa preuzete su iz primera. Informativna procena — stvarni EPS obračun može se razlikovati zbog broja dana obračuna, zvanične raspodele zona, zaokruživanja i važećih tarifa.Proračun je informativnog karaktera i može da pogreši.</p>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),fmt=n=>Number(n).toLocaleString('sr-RS',{minimumFractionDigits:2,maximumFractionDigits:2});
+let rate=6;
+const prices={gvt:9.6136,gnt:2.4034,bvt:14.4203,bnt:3.6051,rvt:28.8406,rnt:7.2102};
+function calc(){
+ const vt=Math.max(0,Number($('vt').value)||0),nt=Math.max(0,Number($('nt').value)||0),sum=vt+nt;
+ const green=Math.min(sum,350),blue=Math.min(Math.max(sum-350,0),850),red=Math.max(sum-1200,0);
+ const ratio=sum?vt/sum:0;
+ const parts={gv:green*ratio,gn:green*(1-ratio),bv:blue*ratio,bn:blue*(1-ratio),rv:red*ratio,rn:red*(1-ratio)};
+ const energy=parts.gv*prices.gvt+parts.gn*prices.gnt+parts.bv*prices.bvt+parts.bn*prices.bnt+parts.rv*prices.rvt+parts.rn*prices.rnt;
+ const power=672.28,supplier=160.67,before=power+supplier+energy,discount=before*rate/100;
+ const renew=sum*.801,eff=sum*.015,base=before-discount+renew+eff,excise=base*.075,vat=(base+excise)*.20,rts=349,total=base+excise+vat+rts;
+ const put=(id,v)=>$(id).textContent=fmt(v);
+ put('total',total);put('total2',total);put('power',power);put('supplier',supplier);put('energy',energy);put('before',before);put('discountAmount',-discount);put('renew',renew);put('eff',eff);put('excise',excise);put('vat',vat);
+ put('green',green);put('blue',blue);put('red',red);$('usage').textContent='Ukupno: '+fmt(sum)+' kWh';
+ $('gbar').style.width=(sum?green/sum*100:0)+'%';$('bbar').style.width=(sum?blue/sum*100:0)+'%';$('rbar').style.width=(sum?red/sum*100:0)+'%';
+}
+$('vt').addEventListener('input',calc);$('nt').addEventListener('input',calc);
+$('clear').addEventListener('click',()=>{$('vt').value='';$('nt').value='';calc()});
+$('example').addEventListener('click',()=>{$('vt').value=356;$('nt').value=83;calc()});
+document.querySelectorAll('[data-rate]').forEach(btn=>btn.addEventListener('click',()=>{rate=Number(btn.dataset.rate);document.querySelectorAll('[data-rate]').forEach(b=>b.classList.toggle('active',b===btn));calc()}));
+calc();
+})();
+</script>
+</body></html>
